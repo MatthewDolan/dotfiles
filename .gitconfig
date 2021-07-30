@@ -1,0 +1,71 @@
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+
+[status]
+  submodulesummary = true
+
+[alias]
+  s = status
+  a = add
+  co = checkout
+  cm = commit
+  rb = rebase
+  cp = cherry-pick
+  c = commit
+  lg = log --oneline --decorate --graph
+  br = branch -av
+  sinit = submodule init
+  spull = pull --recurse-submodules
+  supdate = submodule update --recursive
+  ppf = pull --prune --ff-only
+  upush = push --set-upstream origin HEAD
+  change = codereview change
+  gofmt = codereview gofmt
+  mail = codereview mail
+  pending = codereview pending
+  submit = codereview submit
+  sync = codereview sync
+  new = "!f() { git checkout main; git pull; git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
+  new-here = "!f() { git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
+  clean-branches = "!f() {  git branch | grep -v main | grep -v '\\*' | xargs git branch -D; }; f" # remove branches that have been deleted on the remote
+
+[core]
+  excludesfile = /Users/dolan/.gitignore
+  hooksPath = /Users/dolan/dev/lightstep/git-hooks
+
+[user]
+  name = Matthew Dolan
+  email = MatthewDolan@users.noreply.github.com
+
+[diff]
+  compactionHeuristic = true
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[push]
+  default = current
+
+[http]
+  cookiefile = /Users/dolan/.gitcookies
