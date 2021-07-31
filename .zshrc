@@ -2,7 +2,7 @@
 # This is where you would put local configuration that's only for this computer.
 # For example, sourcing company specific files or setting secret keys as
 # environment variables.
-if [ -f "$HOME/.local" ]; then source $HOME/.local fi
+if [ -f "$HOME/.local" ]; then source $HOME/.local; fi
 
 # Path to your oh-my-zsh installation.
 export ZSH=~/.oh-my-zsh
