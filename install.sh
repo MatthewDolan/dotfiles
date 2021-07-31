@@ -17,14 +17,14 @@ fi
 
 # symlink dotfiles
 echo "Symlinking dotfiles..."
-for file in $( ls -A $HOME/dotfiles | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$|\.DS_Store$' ) ; do
+for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$|\.DS_Store$' ) ; do
   echo "  Symlinking $file..."
   echo "$HOME/$file"
   if [ -f "$HOME/$file" ] && ! [ -L "$HOME/$file" ]; then
     echo "    Moving old file to $HOME/dotfiles-old"
     mkdir -p "$HOME/dotfiles-old"
-    mv "$HOME/$file" "$HOME/dotfiles-old"
+    mv "$HOME/g$file" "$HOME/dotfiles-old"
   fi
   # Silently ignore errors here because the files may already exist
-  ln -sfn "$HOME/dotfiles/$file" "$HOME"
+  ln -sf "$PWD/$file" "$HOME"
 done
