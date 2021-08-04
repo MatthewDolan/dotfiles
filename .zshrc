@@ -41,6 +41,7 @@ export PATH=$HOME/go/bin:$PATH
 # Ruby specific configuration
 # Add ruby gem home environment variable
 export GEM_HOME="$HOME/.gem"
+export PATH=$HOME/.gem/bin:$PATH
 
 # Google Cloud SDK specific configuration
 # The next line updates PATH for the Google Cloud SDK.
