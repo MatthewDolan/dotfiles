@@ -2,13 +2,13 @@
 # This is where you would put local configuration that's only for this computer.
 # For example, sourcing company specific files or setting secret keys as
 # environment variables.
-if [ -f "$HOME/.local" ]; then source $HOME/.local; fi
+if [ -f "$HOME/.zshrc.local" ]; then source $HOME/.zshrc.local; fi
 
 # Path to your oh-my-zsh installation.
 export ZSH=~/.oh-my-zsh
 
 # zsh theme
-ZSH_THEME="robbyrussell"
+if [[ ! -v ZSH_THEME ]]; then export ZSH_THEME="robbyrussell"; fi
 
 # zsh plugins
 plugins=(
