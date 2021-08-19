@@ -49,3 +49,8 @@ export PATH=$HOME/.gem/bin:$PATH
 if [ -f "$HOME/Development/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Development/google-cloud-sdk/path.zsh.inc"; fi
 # The next line enables shell command completion for gcloud.
 if [ -f '$HOME/Development/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/Development/google-cloud-sdk/completion.zsh.inc'; fi
+
+# Hermit Shell Hooks (https://github.com/cashapp/hermit)
+# Automatic environment activation/deactivation when changing directories.
+autoload -U compinit && compinit -i
+eval "$(test -x $HOME/bin/hermit && $HOME/bin/hermit shell-hooks --print --zsh)"
