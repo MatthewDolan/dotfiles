@@ -67,5 +67,8 @@
 [push]
   default = current
 
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+
 [http]
   cookiefile = /Users/dolan/.gitcookies
