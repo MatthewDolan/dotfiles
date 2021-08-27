@@ -62,3 +62,17 @@ for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$
   # Silently ignore errors here because the files may already exist
   ln -sf "$PWD/$file" "$HOME"
 done
+
+# install mac os x specific programs
+if [ "$(uname)" == "Darwin" ]; then
+  echo "Installing Mac OS Software..."
+
+  if ! command -v brew &> /dev/null ; then
+    echo "  Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+
+  echo "  Showing hidden files in Finder..."
+  defaults write com.apple.finder AppleShowAllFiles TRUE
+  killall Finder
+fi
