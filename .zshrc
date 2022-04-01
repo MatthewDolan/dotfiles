@@ -32,10 +32,8 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# install mac os x specific programs
-if [ "$(uname)" == "Darwin" ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
+# Add homebrew shell environment
+if [ -f '/opt/homebrew/bin/brew' ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
 
 # Set vscode as default editor
 export EDITOR="code -w"
