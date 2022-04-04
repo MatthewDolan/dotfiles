@@ -36,7 +36,7 @@ source $ZSH/oh-my-zsh.sh
 if [ -f '/opt/homebrew/bin/brew' ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
 
 # Set vscode as default editor
-export EDITOR="code -w"
+if [ -f '/usr/local/bin/code' ]; then export EDITOR="code -w"; fi
 
 # Docker specific configuration
 export DOCKER_ID_USER="matthewdolan"
@@ -54,9 +54,7 @@ export PATH=$HOME/.gem/bin:$PATH
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f "$HOME/Development/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Development/google-cloud-sdk/path.zsh.inc"; fi
 # The next line enables shell command completion for gcloud.
-if [ -f '$HOME/Development/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/Development/google-cloud-sdk/completion.zsh.inc'; fi
-
-if [ -f '$HOME/Development/google-cloud-sdk/completion.zsh.inc' ]; then source '$HOME/Development/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f "$HOME/Development/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/Development/google-cloud-sdk/completion.zsh.inc"; fi
 
 # Hermit Shell Hooks (https://github.com/cashapp/hermit)
 # Automatic environment activation/deactivation when changing directories.
