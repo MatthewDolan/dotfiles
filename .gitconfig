@@ -43,9 +43,9 @@
   pending = codereview pending
   submit = codereview submit
   sync = codereview sync
-  new = "!f() { git checkout main; git pull; git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
+  new = "!f() { git checkout $(git remote show origin | sed -n '/HEAD branch/s/.*: //p'); git pull; git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
   new-here = "!f() { git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
-  clean-branches = "!f() {  git branch | grep -v main | grep -v '\\*' | xargs git branch -D; }; f" # remove branches that have been deleted on the remote
+  clean-branches = "!f() {  git branch | grep -v $(git remote show origin | sed -n '/HEAD branch/s/.*: //p') | grep -v '\\*' | xargs git branch -D; }; f" # remove branches that have been deleted on the remote
 
 [core]
   excludesfile = /Users/dolan/.gitignore
