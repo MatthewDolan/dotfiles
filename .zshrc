@@ -32,6 +32,9 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+# Used by some programs (including hermit)
+export PATH=$HOME/bin:$PATH
+
 # Add homebrew shell environment
 if [ -f '/opt/homebrew/bin/brew' ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
 
