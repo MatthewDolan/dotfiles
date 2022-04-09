@@ -63,6 +63,24 @@ for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$
   ln -sf "$PWD/$file" "$HOME"
 done
 
+if ! [ -d "$HOME/bin" ]; then
+  echo "Creating a bin folder..."
+  mkdir -p "$HOME/bin"
+fi
+
+# symlink bin files
+echo "Symlinking bin files..."
+for file in $( ls -A bin | grep -vE '\.DS_Store$' ) ; do
+  echo "  Symlinking bin/$file..."
+  if [ -f "$HOME/bin/$file" ] && ! [ -L "$HOME/bin/$file" ]; then
+    echo "    Moving old file to $HOME/bin-old"
+    mkdir -p "$HOME/bin-old"
+    mv "$HOME/bin/$file" "$HOME/bin-old"
+  fi
+  # Silently ignore errors here because the files may already exist
+  ln -sf "$PWD/bin/$file" "$HOME/bin"
+done
+
 # install mac os x specific programs
 if [ "$(uname)" == "Darwin" ]; then
   echo "Installing Mac OS Software..."
