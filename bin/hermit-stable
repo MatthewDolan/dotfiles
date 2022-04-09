@@ -1,4 +1,9 @@
 #!/bin/bash
-: "${HERMIT_EXE:=${XDG_CACHE_HOME:-${HOME}/.cache}/hermit/pkg/hermit@stable/hermit}"
+case "$(uname -s)" in
+Darwin)
+  : "${HERMIT_EXE:=${HOME}/Library/Caches/hermit/pkg/hermit@stable/hermit}" ;;
+Linux)
+  : "${HERMIT_EXE:=${XDG_CACHE_HOME:-${HOME}/.cache}/hermit/pkg/hermit@stable/hermit}" ;;
+esac
 test -x ${HERMIT_EXE} && exec "${HERMIT_EXE}" "$@"
 (curl -fsSL "https://github.com/cashapp/hermit/releases/download/stable/install.sh" | bash) && exec "${HERMIT_EXE}" "$@"
