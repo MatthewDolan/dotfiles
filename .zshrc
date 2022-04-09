@@ -62,4 +62,6 @@ if [ -f "$HOME/Development/google-cloud-sdk/completion.zsh.inc" ]; then source "
 # Hermit Shell Hooks (https://github.com/cashapp/hermit)
 # Automatic environment activation/deactivation when changing directories.
 autoload -U compinit && compinit -i
-eval "$(test -x $HOME/bin/hermit && $HOME/bin/hermit shell-hooks --print --zsh)"
+# If hermit hasn't been downloaded yet, `$HOME/bin/hermit shell-hooks --print --zsh` will print extraneous information about downloading it.
+# Calling `$HOME/bin/hermit version` first and sending the output to /dev/null will prevent this.
+eval "$(test -x $HOME/bin/hermit &&  $HOME/bin/hermit version > /dev/null && $HOME/bin/hermit shell-hooks --print --zsh)"
