@@ -1,0 +1,7 @@
+#!/bin/bash
+
+$HOME/bin/make-if-target fmt || exit $?
+
+$HOME/bin/make-if-target lint || exit $?
+
+$HOME/bin/make-if-target test || exit $?

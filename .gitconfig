@@ -48,8 +48,8 @@
   clean-branches = "!f() {  git branch | grep -v $(git remote show origin | sed -n '/HEAD branch/s/.*: //p') | grep -v '\\*' | xargs git branch -D; }; f" # remove branches that have been deleted on the remote
 
 [core]
-  excludesfile = /Users/dolan/.gitignore
-  hooksPath = /Users/dolan/dev/lightstep/git-hooks
+  excludesfile = ~/.gitignore
+  hooksPath = ~/.githooks
 
 [user]
   name = Matthew Dolan
