@@ -22,7 +22,7 @@ if [ -d "$PWD/.oh-my-zsh/custom" ]; then
   # symlink custom zsh plugins
   if [ -d "$PWD/.oh-my-zsh/custom/plugins" ]; then
     echo "  Symlinking custom oh-my-zsh plugins..."
-    for file in $( ls -A $PWD/.oh-my-zsh/custom/plugins | grep -vE '\.gitignore$|\.gitmodules$|\.DS_Store$' ) ; do
+    for file in $( ls -A $PWD/.oh-my-zsh/custom/plugins | grep -vE '\.DS_Store$' ) ; do
       echo "    Symlinking .oh-my-zsh/custom/plugins/$file..."
       if [ -f "$HOME/.oh-my-zsh/custom/plugins/$file" ] && ! [ -L "$HOME/.oh-my-zsh/custom/plugins/$file" ]; then
         echo "      Moving old file to $HOME/.oh-my-zsh-old/custom/plugins"
@@ -37,7 +37,7 @@ if [ -d "$PWD/.oh-my-zsh/custom" ]; then
   # symlink custom zsh themes
   if [ -d "$PWD/.oh-my-zsh/custom/themes" ]; then
     echo "  Symlinking custom oh-my-zsh themes..."
-    for file in $( ls -A $PWD/.oh-my-zsh/custom/themes | grep -vE '\.gitignore$|\.gitmodules$|\.DS_Store$' ) ; do
+    for file in $( ls -A $PWD/.oh-my-zsh/custom/themes | grep -vE '\.DS_Store$' ) ; do
       echo "    Symlinking .oh-my-zsh/custom/themes/$file..."
       if [ -f "$HOME/.oh-my-zsh/custom/themes/$file" ] && ! [ -L "$HOME/.oh-my-zsh/custom/themes/$file" ]; then
         echo "      Moving old file to $HOME/.oh-my-zsh-old/custom/themes"
@@ -52,7 +52,7 @@ fi
 
 # symlink dotfiles
 echo "Symlinking dotfiles..."
-for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$|\.DS_Store$|\.oh-my-zsh$' ) ; do
+for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.DS_Store$|\.oh-my-zsh$|\.githooks$' ) ; do
   echo "  Symlinking $file..."
   if [ -f "$HOME/$file" ] && ! [ -L "$HOME/$file" ]; then
     echo "    Moving old file to $HOME/dotfiles-old"
@@ -63,6 +63,7 @@ for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.gitignore$|\.gitmodules$
   ln -sf "$PWD/$file" "$HOME"
 done
 
+# create bin folder
 if ! [ -d "$HOME/bin" ]; then
   echo "Creating a bin folder..."
   mkdir -p "$HOME/bin"
@@ -79,6 +80,25 @@ for file in $( ls -A bin | grep -vE '\.DS_Store$' ) ; do
   fi
   # Silently ignore errors here because the files may already exist
   ln -sf "$PWD/bin/$file" "$HOME/bin"
+done
+
+# create .githooks folder
+if ! [ -d "$HOME/.githooks" ]; then
+  echo "Creating a .githooks folder..."
+  mkdir -p "$HOME/.githooks"
+fi
+
+# symlink .githooks files
+echo "Symlinking .githooks files..."
+for file in $( ls -A .githooks | grep -vE '\.DS_Store$' ) ; do
+  echo "  Symlinking .githooks/$file..."
+  if [ -f "$HOME/.githooks/$file" ] && ! [ -L "$HOME/.githooks/$file" ]; then
+    echo "    Moving old file to $HOME/.githooks-old"
+    mkdir -p "$HOME/.githooks-old"
+    mv "$HOME/bin/$file" "$HOME/.githooks-old"
+  fi
+  # Silently ignore errors here because the files may already exist
+  ln -sf "$PWD/.githooks/$file" "$HOME/.githooks"
 done
 
 # install mac os x specific programs
