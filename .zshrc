@@ -46,12 +46,13 @@ export DOCKER_ID_USER="matthewdolan"
 
 # Go specific configuration
 # Add $HOME/go/bin to path
-export PATH=$HOME/go/bin:$PATH
+export GOPATH=$HOME/go
+export PATH=$GOBIN:$GOPATH/bin:$GOROOT/bin:$PATH
 
 # Ruby specific configuration
 # Add ruby gem home environment variable
 export GEM_HOME="$HOME/.gem"
-export PATH=$HOME/.gem/bin:$PATH
+export PATH=$GEM_HOME/bin:$PATH
 
 # Google Cloud SDK specific configuration
 # The next line updates PATH for the Google Cloud SDK.
