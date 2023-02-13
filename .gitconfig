@@ -45,6 +45,7 @@
   sync = codereview sync
   new = "!f() { git checkout $(git remote show origin | sed -n '/HEAD branch/s/.*: //p'); git pull; git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
   new-here = "!f() { git checkout -b $USER-`date '+%Y-%m-%d'`-$1; }; f" # Create a new branch with prefix.
+  root = rev-parse --show-toplevel
   clean-branches = "!f() {  git branch | grep -v $(git remote show origin | sed -n '/HEAD branch/s/.*: //p') | grep -v '\\*' | xargs git branch -D; }; f" # remove branches that have been deleted on the remote
 
 [core]
