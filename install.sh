@@ -52,7 +52,7 @@ fi
 
 # symlink dotfiles
 echo "Symlinking dotfiles..."
-for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|\.DS_Store$|\.oh-my-zsh$|\.githooks$' ) ; do
+for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|^.gitignore$|^\.DS_Store$|^\.idea$|^\.oh-my-zsh$|^\.githooks$|^\.zsh$' ) ; do
   echo "  Symlinking $file..."
   if [ -f "$HOME/$file" ] && ! [ -L "$HOME/$file" ]; then
     echo "    Moving old file to $HOME/dotfiles-old"
@@ -99,6 +99,25 @@ for file in $( ls -A .githooks | grep -vE '\.DS_Store$' ) ; do
   fi
   # Silently ignore errors here because the files may already exist
   ln -sf "$PWD/.githooks/$file" "$HOME/.githooks"
+done
+
+# create .zsh folder
+if ! [ -d "$HOME/.zsh" ]; then
+  echo "Creating a .zsh folder..."
+  mkdir -p "$HOME/.zsh"
+fi
+
+# symlink .githooks files
+echo "Symlinking .githooks files..."
+for file in $( ls -A .zsh | grep -vE '\.DS_Store$' ) ; do
+  echo "  Symlinking .zsh/$file..."
+  if [ -f "$HOME/.zsh/$file" ] && ! [ -L "$HOME/.zsh/$file" ]; then
+    echo "    Moving old file to $HOME/.zsh-old"
+    mkdir -p "$HOME/.zsh-old"
+    mv "$HOME/bin/$file" "$HOME/.zsh-old"
+  fi
+  # Silently ignore errors here because the files may already exist
+  ln -sf "$PWD/.zsh/$file" "$HOME/.zsh"
 done
 
 # install mac os x specific programs

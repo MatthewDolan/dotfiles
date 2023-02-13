@@ -41,8 +41,14 @@ if [ -f '/opt/homebrew/bin/brew' ]; then eval "$(/opt/homebrew/bin/brew shellenv
 # Set vscode as default editor
 if [ -f '/usr/local/bin/code' ]; then export EDITOR="code -w"; fi
 
+# Git configuration
+zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
+fpath=(~/.zsh $fpath)
+autoload -Uz compinit && compinit
+
 # Docker specific configuration
 export DOCKER_ID_USER="matthewdolan"
+if [ -f "$HOME/.docker/init-zsh.sh" ]; then source "$HOME/.docker/init-zsh.sh"; fi # Added by Docker Desktop
 
 # Go specific configuration
 # Add $HOME/go/bin to path
@@ -53,6 +59,11 @@ export PATH=$GOBIN:$GOPATH/bin:$GOROOT/bin:$PATH
 # Add ruby gem home environment variable
 export GEM_HOME="$HOME/.gem"
 export PATH=$GEM_HOME/bin:$PATH
+
+# Node specific configuration
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Google Cloud SDK specific configuration
 # The next line updates PATH for the Google Cloud SDK.
