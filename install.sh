@@ -90,7 +90,7 @@ fi
 
 # symlink .githooks files
 echo "Symlinking .githooks files..."
-for file in $( ls -A .githooks | grep -vE '\.DS_Store$' ) ; do
+for file in $( find .githooks -mindepth 1 -maxdepth 1 -type f | sed 's|^\.githooks/||' | grep -vE '\.DS_Store$' ) ; do
   echo "  Symlinking .githooks/$file..."
   if [ -f "$HOME/.githooks/$file" ] && ! [ -L "$HOME/.githooks/$file" ]; then
     echo "    Moving old file to $HOME/.githooks-old"
@@ -99,6 +99,26 @@ for file in $( ls -A .githooks | grep -vE '\.DS_Store$' ) ; do
   fi
   # Silently ignore errors here because the files may already exist
   ln -sf "$PWD/.githooks/$file" "$HOME/.githooks"
+done
+
+for dir in $( find .githooks -mindepth 1 -maxdepth 1 -type d | sed 's|^\.githooks/||' ) ; do
+  # create .githooks/$dir folder
+  if ! [ -d "$HOME/.githooks/$dir" ]; then
+    echo "  Creating a .githooks/$dir folder..."
+    mkdir -p "$HOME/.githooks/$dir"
+  fi
+
+  echo "  Symlinking .githooks/$dir files..."
+  for file in $( find .githooks/$dir -mindepth 1 -maxdepth 1 -type f | sed "s|^\.githooks/$dir/||" | grep -vE '\.DS_Store$' ) ; do
+    echo "    Symlinking .githooks/$dir/$file..."
+    if [ -f "$HOME/.githooks/$file" ] && ! [ -L "$HOME/.githooks/$file" ]; then
+      echo "      Moving old file to $HOME/.githooks-old/$dir/"
+      mkdir -p "$HOME/.githooks-old/$dir/"
+      mv "$HOME/bin/$dir/$file" "$HOME/.githooks-old/$dir/"
+    fi
+    # Silently ignore errors here because the files may already exist
+    ln -sf "$PWD/.githooks/$dir/$file" "$HOME/.githooks/$dir"
+  done
 done
 
 # create .zsh folder

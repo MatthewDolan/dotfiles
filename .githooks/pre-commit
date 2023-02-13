@@ -1,7 +1,12 @@
 #!/bin/bash
 
-$HOME/bin/make-if-target fmt || exit $?
+for hook in "$(ls $(dirname "$0")/pre-commit.d)"; do
+    bash "$(dirname "$0")/pre-commit.d/$hook"
+    RESULT=$?
+    if [ $RESULT != 0 ]; then
+        echo "pre-commit.d/$hook returned non-zero: $RESULT, abort commit"
+        exit $RESULT
+    fi
+done
 
-$HOME/bin/make-if-target lint || exit $?
-
-$HOME/bin/make-if-target test || exit $?
+exit 0
