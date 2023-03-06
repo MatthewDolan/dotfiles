@@ -52,7 +52,7 @@ fi
 
 # symlink dotfiles
 echo "Symlinking dotfiles..."
-for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|^.gitignore$|^\.DS_Store$|^\.idea$|^\.oh-my-zsh$|^\.githooks$|^\.zsh$' ) ; do
+for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|^\.DS_Store$|^\.idea$|^\.oh-my-zsh$|^\.githooks$|^\.zsh$' ) ; do
   echo "  Symlinking $file..."
   if [ -f "$HOME/$file" ] && ! [ -L "$HOME/$file" ]; then
     echo "    Moving old file to $HOME/dotfiles-old"
