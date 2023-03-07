@@ -3,10 +3,10 @@ set -e
 
 echo "Setting up your Computer..."
 
-# create development directory
-if ! [ -d "$HOME/Development" ]; then
-  echo "Creating a Development folder..."
-  mkdir -p "$HOME/Development"
+# create developer directory
+if ! [ -d "$HOME/Developer" ]; then
+  echo "Creating a Developer folder..."
+  mkdir -p "$HOME/Developer"
 fi
 
 # install oh-my-zsh
