@@ -41,6 +41,9 @@ if [ -f '/opt/homebrew/bin/brew' ]; then eval "$(/opt/homebrew/bin/brew shellenv
 # Set vscode as default editor
 if [ -f '/usr/local/bin/code' ]; then export EDITOR="code -w"; fi
 
+# Brew configuration
+export HOMEBREW_NO_ENV_HINTS=true
+
 # Git configuration
 zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
 fpath=(~/.zsh $fpath)
