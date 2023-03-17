@@ -1,3 +1,5 @@
+# MacOS specific ignores
 .DS_Store
 
-/.idea
+# JetBrains IDE specific ignores
+/.idea/
