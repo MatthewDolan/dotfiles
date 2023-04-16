@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+
+
 echo "Setting up your Computer..."
 
 # create developer directory
@@ -15,129 +17,32 @@ if ! [ -d "$HOME/.oh-my-zsh" ]; then
   sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
 fi
 
-# symlink custom zsh plugins & themes
-if [ -d "$PWD/.oh-my-zsh/custom" ]; then
-  echo "Symlinking custom oh-my-zsh plugins and themes..."
+# symlink files from `./home` to `$HOME`
+home_src="$PWD/home"
+home_dst="$HOME"
 
-  # symlink custom zsh plugins
-  if [ -d "$PWD/.oh-my-zsh/custom/plugins" ]; then
-    echo "  Symlinking custom oh-my-zsh plugins..."
-    for file in $( ls -A $PWD/.oh-my-zsh/custom/plugins | grep -vE '\.DS_Store$' ) ; do
-      echo "    Symlinking .oh-my-zsh/custom/plugins/$file..."
-      if [ -f "$HOME/.oh-my-zsh/custom/plugins/$file" ] && ! [ -L "$HOME/.oh-my-zsh/custom/plugins/$file" ]; then
-        echo "      Moving old file to $HOME/.oh-my-zsh-old/custom/plugins"
-        mkdir -p "$HOME/.oh-my-zsh-old/custom/plugins"
-        mv "$HOME/.oh-my-zsh/custom/plugins/$file" "$HOME/.oh-my-zsh-old/custom/plugins"
-      fi
-      # Silently ignore errors here because the files may already exist
-      ln -sf "$PWD/.oh-my-zsh/custom/plugins/$file" "$HOME/.oh-my-zsh/custom/plugins"
-    done
+echo "Symlinking files from "${file#$PWD/}" to $home_dst..."
+
+# iterate through all files in $home_src and its subdirectories
+find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
+  # create the destination directory for the symlink
+  dest_dir="$(dirname "${file#$home_src/}")"
+
+  echo "  Symlinking "${file#$home_src/}" to \$HOME/$dest_dir..."
+
+  mkdir -p "$home_dst/$dest_dir"
+
+  dest_file="$home_dst/$dest_dir/$(basename "$file")"
+
+  # create the symlink, moving the file to .old if necessary
+  if [[ -e "$dest_file" && ! -L "$dest_file" ]]; then
+
+    # create .old directory if it doesn't exist
+    mkdir -p "$home_dst/.old"
+
+    mv "$dest_file" "$home_dst/.old/$dest_dir/$(basename "$file")"
   fi
-
-  # symlink custom zsh themes
-  if [ -d "$PWD/.oh-my-zsh/custom/themes" ]; then
-    echo "  Symlinking custom oh-my-zsh themes..."
-    for file in $( ls -A $PWD/.oh-my-zsh/custom/themes | grep -vE '\.DS_Store$' ) ; do
-      echo "    Symlinking .oh-my-zsh/custom/themes/$file..."
-      if [ -f "$HOME/.oh-my-zsh/custom/themes/$file" ] && ! [ -L "$HOME/.oh-my-zsh/custom/themes/$file" ]; then
-        echo "      Moving old file to $HOME/.oh-my-zsh-old/custom/themes"
-        mkdir -p "$HOME/.oh-my-zsh-old/custom/themes"
-        mv "$HOME/.oh-my-zsh/custom/themes/$file" "$HOME/.oh-my-zsh-old/custom/themes"
-      fi
-      # Silently ignore errors here because the files may already exist
-      ln -sf "$PWD/.oh-my-zsh/custom/themes/$file" "$HOME/.oh-my-zsh/custom/themes"
-    done
-  fi
-fi
-
-# symlink dotfiles
-echo "Symlinking dotfiles..."
-for file in $( ls -A | grep '^\.' | grep -vE '^\.git$|^\.DS_Store$|^\.idea$|^\.oh-my-zsh$|^\.githooks$|^\.zsh$' ) ; do
-  echo "  Symlinking $file..."
-  if [ -f "$HOME/$file" ] && ! [ -L "$HOME/$file" ]; then
-    echo "    Moving old file to $HOME/dotfiles-old"
-    mkdir -p "$HOME/dotfiles-old"
-    mv "$HOME/$file" "$HOME/dotfiles-old"
-  fi
-  # Silently ignore errors here because the files may already exist
-  ln -sf "$PWD/$file" "$HOME"
-done
-
-# create bin folder
-if ! [ -d "$HOME/bin" ]; then
-  echo "Creating a bin folder..."
-  mkdir -p "$HOME/bin"
-fi
-
-# symlink bin files
-echo "Symlinking bin files..."
-for file in $( ls -A bin | grep -vE '\.DS_Store$' ) ; do
-  echo "  Symlinking bin/$file..."
-  if [ -f "$HOME/bin/$file" ] && ! [ -L "$HOME/bin/$file" ]; then
-    echo "    Moving old file to $HOME/bin-old"
-    mkdir -p "$HOME/bin-old"
-    mv "$HOME/bin/$file" "$HOME/bin-old"
-  fi
-  # Silently ignore errors here because the files may already exist
-  ln -sf "$PWD/bin/$file" "$HOME/bin"
-done
-
-# create .githooks folder
-if ! [ -d "$HOME/.githooks" ]; then
-  echo "Creating a .githooks folder..."
-  mkdir -p "$HOME/.githooks"
-fi
-
-# symlink .githooks files
-echo "Symlinking .githooks files..."
-for file in $( find .githooks -mindepth 1 -maxdepth 1 -type f | sed 's|^\.githooks/||' | grep -vE '\.DS_Store$' ) ; do
-  echo "  Symlinking .githooks/$file..."
-  if [ -f "$HOME/.githooks/$file" ] && ! [ -L "$HOME/.githooks/$file" ]; then
-    echo "    Moving old file to $HOME/.githooks-old"
-    mkdir -p "$HOME/.githooks-old"
-    mv "$HOME/bin/$file" "$HOME/.githooks-old"
-  fi
-  # Silently ignore errors here because the files may already exist
-  ln -sf "$PWD/.githooks/$file" "$HOME/.githooks"
-done
-
-for dir in $( find .githooks -mindepth 1 -maxdepth 1 -type d | sed 's|^\.githooks/||' ) ; do
-  # create .githooks/$dir folder
-  if ! [ -d "$HOME/.githooks/$dir" ]; then
-    echo "  Creating a .githooks/$dir folder..."
-    mkdir -p "$HOME/.githooks/$dir"
-  fi
-
-  echo "  Symlinking .githooks/$dir files..."
-  for file in $( find .githooks/$dir -mindepth 1 -maxdepth 1 -type f | sed "s|^\.githooks/$dir/||" | grep -vE '\.DS_Store$' ) ; do
-    echo "    Symlinking .githooks/$dir/$file..."
-    if [ -f "$HOME/.githooks/$file" ] && ! [ -L "$HOME/.githooks/$file" ]; then
-      echo "      Moving old file to $HOME/.githooks-old/$dir/"
-      mkdir -p "$HOME/.githooks-old/$dir/"
-      mv "$HOME/bin/$dir/$file" "$HOME/.githooks-old/$dir/"
-    fi
-    # Silently ignore errors here because the files may already exist
-    ln -sf "$PWD/.githooks/$dir/$file" "$HOME/.githooks/$dir"
-  done
-done
-
-# create .zsh folder
-if ! [ -d "$HOME/.zsh" ]; then
-  echo "Creating a .zsh folder..."
-  mkdir -p "$HOME/.zsh"
-fi
-
-# symlink .githooks files
-echo "Symlinking .githooks files..."
-for file in $( ls -A .zsh | grep -vE '\.DS_Store$' ) ; do
-  echo "  Symlinking .zsh/$file..."
-  if [ -f "$HOME/.zsh/$file" ] && ! [ -L "$HOME/.zsh/$file" ]; then
-    echo "    Moving old file to $HOME/.zsh-old"
-    mkdir -p "$HOME/.zsh-old"
-    mv "$HOME/bin/$file" "$HOME/.zsh-old"
-  fi
-  # Silently ignore errors here because the files may already exist
-  ln -sf "$PWD/.zsh/$file" "$HOME/.zsh"
+  ln -sf "$file" "$dest_file"
 done
 
 # install mac os x specific programs

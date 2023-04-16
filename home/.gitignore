@@ -1,0 +1,5 @@
+# MacOS specific ignores
+.DS_Store
+
+# JetBrains IDE specific ignores
+/.idea/
