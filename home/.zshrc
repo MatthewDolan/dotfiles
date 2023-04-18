@@ -70,9 +70,9 @@ export NVM_DIR="$HOME/.nvm"
 
 # Google Cloud SDK specific configuration
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/Development/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Development/google-cloud-sdk/path.zsh.inc"; fi
+if [ -f "$HOME/Developer/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/path.zsh.inc"; fi
 # The next line enables shell command completion for gcloud.
-if [ -f "$HOME/Development/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/Development/google-cloud-sdk/completion.zsh.inc"; fi
+if [ -f "$HOME/Developer/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/completion.zsh.inc"; fi
 
 # Hermit Shell Hooks (https://github.com/cashapp/hermit)
 # Automatic environment activation/deactivation when changing directories.
