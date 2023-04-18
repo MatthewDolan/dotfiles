@@ -55,7 +55,7 @@ if [ -f "$HOME/.docker/init-zsh.sh" ]; then source "$HOME/.docker/init-zsh.sh"; 
 
 # Go specific configuration
 # Add $HOME/go/bin to path
-export GOPATH=$HOME/go
+export GOPATH=$HOME/Developer/go
 export PATH=$GOBIN:$GOPATH/bin:$GOROOT/bin:$PATH
 
 # Ruby specific configuration
