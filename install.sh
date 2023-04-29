@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-
-
 echo "Setting up your Computer..."
 
 # create developer directory
@@ -12,9 +10,15 @@ if ! [ -d "$HOME/Developer" ]; then
 fi
 
 # install oh-my-zsh
-if ! [ -d "$HOME/.oh-my-zsh" ]; then
+if ! [[ -d "$HOME/.oh-my-zsh" ]]; then
   echo "Installing oh-my-zsh..."
   sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
+fi
+
+# install hermit
+if ! [[ -d "$HOME/bin/hermit" ]]; then
+  echo "Installing hermit..."
+  curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
 fi
 
 # symlink files from `./home` to `$HOME`
@@ -46,7 +50,7 @@ find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
 done
 
 # install mac os x specific programs
-if [ "$(uname)" == "Darwin" ]; then
+if [[ "$(uname)" == "Darwin" ]]; then
   echo "Installing Mac OS Software..."
 
   if ! command -v brew &> /dev/null ; then
