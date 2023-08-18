@@ -63,6 +63,10 @@ export PATH=$GOBIN:$GOPATH/bin:$GOROOT/bin:$PATH
 export GEM_HOME="$HOME/.gem"
 export PATH=$GEM_HOME/bin:$PATH
 
+# Python specific configuration
+# Add python bin to the path
+if command -v python3 &>/dev/null ; then export PATH="$PATH:$(python3 -m site --user-base)/bin" ; fi
+
 # Node specific configuration
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
