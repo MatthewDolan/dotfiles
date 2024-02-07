@@ -72,6 +72,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# Kubernetes specific configuration
+# Set the kubernetes editor in addition to the base editor because for some reason it wasn't working
+if [ -f '/usr/local/bin/code' ]; then export KUBE_EDITOR="code --wait"; fi
+
 # Google Cloud SDK specific configuration
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f "$HOME/Developer/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/path.zsh.inc"; fi
