@@ -54,9 +54,9 @@ export DOCKER_ID_USER="matthewdolan"
 if [ -f "$HOME/.docker/init-zsh.sh" ]; then source "$HOME/.docker/init-zsh.sh"; fi # Added by Docker Desktop
 
 # Go specific configuration
-# Add $HOME/go/bin to path
-export GOPATH=$HOME/Developer/go
-export PATH=$GOBIN:$GOPATH/bin:$GOROOT/bin:$PATH
+# Add $GOPATH/bin to path
+export GOPATH=$HOME/go
+if command -v go &>/dev/null ; then export PATH="$(go env GOPATH)/bin:$PATH" ; fi
 
 # Ruby specific configuration
 # Add ruby gem home environment variable
