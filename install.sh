@@ -25,14 +25,14 @@ fi
 home_src="$PWD/home"
 home_dst="$HOME"
 
-echo "Symlinking files from "${file#$PWD/}" to $home_dst..."
+echo "Symlinking files from ${file#"$PWD/"} to $home_dst..."
 
 # iterate through all files in $home_src and its subdirectories
 find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
   # create the destination directory for the symlink
-  dest_dir="$(dirname "${file#$home_src/}")"
+  dest_dir="$(dirname "${file#"$home_src/"}")"
 
-  echo "  Symlinking "${file#$home_src/}" to \$HOME/$dest_dir..."
+  echo "  Symlinking ${file#"$home_src/"} to \$HOME/$dest_dir..."
 
   mkdir -p "$home_dst/$dest_dir"
 
