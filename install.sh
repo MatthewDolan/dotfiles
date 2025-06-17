@@ -16,9 +16,11 @@ if ! [[ -d "$HOME/.oh-my-zsh" ]]; then
 fi
 
 # install hermit
-if ! [[ -d "$HOME/bin/hermit" ]]; then
-  echo "Installing hermit..."
-  curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
+if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
+  if ! [[ -d "$HOME/bin/hermit" ]]; then
+    echo "Installing hermit..."
+    curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
+  fi
 fi
 
 # symlink files from `./home` to `$HOME`

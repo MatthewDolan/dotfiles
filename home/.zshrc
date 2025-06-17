@@ -76,15 +76,19 @@ export NVM_DIR="$HOME/.nvm"
 # Set the kubernetes editor in addition to the base editor because for some reason it wasn't working
 if [ -f '/usr/local/bin/code' ]; then export KUBE_EDITOR="code --wait"; fi
 
-# Google Cloud SDK specific configuration
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/Developer/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/path.zsh.inc"; fi
-# The next line enables shell command completion for gcloud.
-if [ -f "$HOME/Developer/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/completion.zsh.inc"; fi
+if [[ "${DOLAN_USE_GCLOUD:-false}" == "true" ]]; then
+  # Google Cloud SDK specific configuration
+  # The next line updates PATH for the Google Cloud SDK.
+  if [ -f "$HOME/Developer/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/path.zsh.inc"; fi
+  # The next line enables shell command completion for gcloud.
+  if [ -f "$HOME/Developer/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/Developer/google-cloud-sdk/completion.zsh.inc"; fi
+fi
 
-# Hermit Shell Hooks (https://github.com/cashapp/hermit)
-# Automatic environment activation/deactivation when changing directories.
-autoload -U compinit && compinit -i
-# If hermit hasn't been downloaded yet, `$HOME/bin/hermit shell-hooks --print --zsh` will print extraneous information about downloading it.
-# Calling `$HOME/bin/hermit version` first and sending the output to /dev/null will prevent this.
-eval "$(test -x $HOME/bin/hermit &&  $HOME/bin/hermit version > /dev/null && $HOME/bin/hermit shell-hooks --print --zsh)"
+if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
+  # Hermit Shell Hooks (https://github.com/cashapp/hermit)
+  # Automatic environment activation/deactivation when changing directories.
+  autoload -U compinit && compinit -i
+  # If hermit hasn't been downloaded yet, `$HOME/bin/hermit shell-hooks --print --zsh` will print extraneous information about downloading it.
+  # Calling `$HOME/bin/hermit version` first and sending the output to /dev/null will prevent this.
+  eval "$(test -x $HOME/bin/hermit &&  $HOME/bin/hermit version > /dev/null && $HOME/bin/hermit shell-hooks --print --zsh)"
+fi
