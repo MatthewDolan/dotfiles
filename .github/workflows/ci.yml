@@ -7,6 +7,8 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      HERMIT_LOG_LEVEL: debug
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
