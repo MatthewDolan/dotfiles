@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 for hook in "$(dirname "$0")"/pre-commit.d/*; do
     bash "${hook}"

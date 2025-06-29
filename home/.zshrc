@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # Source ~/.zshrc.local (not checked into the repo)
 # This is where you would put local configuration that's only for this computer.
 # For example, sourcing company specific files or setting secret keys as
@@ -51,7 +53,6 @@ export HOMEBREW_NO_ENV_HINTS=true
 # Git configuration
 zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
 fpath=(~/.zsh $fpath)
-autoload -Uz compinit && compinit
 
 # Docker specific configuration
 export DOCKER_ID_USER="matthewdolan"
@@ -90,9 +91,9 @@ fi
 
 if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
   # Hermit Shell Hooks (https://github.com/cashapp/hermit)
-  # Automatic environment activation/deactivation when changing directories.
-  autoload -U compinit && compinit -i
   # If hermit hasn't been downloaded yet, `$HOME/bin/hermit shell-hooks --print --zsh` will print extraneous information about downloading it.
   # Calling `$HOME/bin/hermit version` first and sending the output to /dev/null will prevent this.
   eval "$(test -x $HOME/bin/hermit &&  $HOME/bin/hermit version > /dev/null && $HOME/bin/hermit shell-hooks --print --zsh)"
 fi
+
+autoload -Uz compinit && compinit
