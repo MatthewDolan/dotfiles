@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env zsh
+
 make -q "$@" 2> /dev/null
 if [[ $? -eq 1 ]]; then
     make "$@"
