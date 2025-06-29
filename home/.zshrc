@@ -14,7 +14,6 @@ if [[ ! -v ZSH_THEME ]]; then export ZSH_THEME="robbyrussell"; fi
 plugins=(
   $plugins
   brew
-  docker
   dotenv
   git
   git-auto-fetch
@@ -27,6 +26,11 @@ plugins=(
   terraform
   timer
 )
+
+# Load the docker plugin only if the docker command is available
+if command -v docker >/dev/null 2>&1; then
+  plugins+=(docker)
+fi
 
 source $ZSH/oh-my-zsh.sh
 
