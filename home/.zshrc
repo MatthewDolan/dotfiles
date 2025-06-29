@@ -9,6 +9,7 @@ if [[ -f "${HOME}/.zshrc.local" ]]; then source "${HOME}"/.zshrc.local; fi
 
 # Path to your oh-my-zsh installation.
 export ZSH=~/.oh-my-zsh
+export ZSH_DISABLE_COMPFIX=true
 
 # zsh theme
 if [[ ! -v ZSH_THEME ]]; then export ZSH_THEME="robbyrussell"; fi
@@ -28,6 +29,7 @@ plugins=(
   kubectl
   terraform
   timer
+  nvm
 )
 
 # Load the docker plugin only if the docker command is available
@@ -68,7 +70,7 @@ if [[ -f "${HOME}/.docker/init-zsh.sh" ]]; then source "${HOME}/.docker/init-zsh
 # Add $GOPATH/bin to path
 export GOPATH="${HOME}/go"
 if command -v go &>/dev/null; then
-  PATH="$(go env GOPATH)/bin:${PATH}"
+  PATH="${GOPATH}/bin:${PATH}"
   export PATH
 fi
 
@@ -80,14 +82,9 @@ export PATH="${GEM_HOME}/bin:${PATH}"
 # Python specific configuration
 # Add python bin to the path
 if command -v python3 &>/dev/null; then
-  PATH="${PATH}:$(python3 -m site --user-base)/bin"
+  PATH="${PATH}:${HOME}/.local/bin"
   export PATH
 fi
-
-# Node specific configuration
-export NVM_DIR="${HOME}/.nvm"
-[[ -s "${NVM_DIR}/nvm.sh" ]] && . "${NVM_DIR}/nvm.sh" # This loads nvm
-[[ -s "${NVM_DIR}/bash_completion" ]] && . "${NVM_DIR}/bash_completion"  # This loads nvm bash_completion
 
 # Kubernetes specific configuration
 # Set the kubernetes editor in addition to the base editor because for some reason it wasn't working
@@ -118,4 +115,3 @@ if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
   fi
 fi
 
-autoload -Uz compinit && compinit
