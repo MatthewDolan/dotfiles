@@ -16,6 +16,12 @@ Alternatively, run it directly with `curl`:
 curl -fsSL https://raw.githubusercontent.com/MatthewDolan/dotfiles/main/install.sh | bash
 ```
 
+You can also fetch the installer from GitHub Pages:
+
+```bash
+curl -fsSL https://matthewdolan.github.io/dotfiles/install.sh | bash
+```
+
 When executed via `curl` or from outside the repository, the installer clones this repository to `~/.dotfiles` before continuing.
 
 ## Testing

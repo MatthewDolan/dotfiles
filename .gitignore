@@ -3,3 +3,6 @@
 
 # JetBrains IDE specific ignores
 /.idea/
+
+# Output directory for GitHub Pages
+/pages/
