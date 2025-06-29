@@ -9,9 +9,10 @@ First ensure you have [Hermit](https://github.com/cashapp/hermit) installed and 
 ```bash
 ./bin/hermit init
 hermit install shellcheck
+hermit install bats
 ```
 
-Install [Bats](https://bats-core.readthedocs.io) (e.g. `apt-get install bats` or `brew install bats-core`).
+ShellCheck and Bats are installed via [MatthewDolan/hermit-packages](https://github.com/MatthewDolan/hermit-packages).
 
 Run the tests with:
 
