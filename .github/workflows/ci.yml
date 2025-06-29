@@ -10,9 +10,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
-      - name: Run tests
+      - name: Install Hermit
         run: |
-          chmod +x ci/test.sh
-          ./ci/test.sh
+          curl -fsSL https://cash.dev/hermit/install.sh | bash
+          echo "$HOME/.hermit/bin" >> "$GITHUB_PATH"
+      - name: Install shellcheck via Hermit
+        run: hermit install shellcheck
+      - name: Run tests
+        run: ./ci/test.sh
