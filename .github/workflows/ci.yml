@@ -11,5 +11,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - uses: cashapp/activate-hermit@v1
+      - uses: bats-core/bats-action@v3
       - name: Run tests
-        run: ./ci/test.sh
+        run: bats -r tests
