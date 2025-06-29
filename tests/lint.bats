@@ -13,8 +13,16 @@ if ! command -v shellcheck >/dev/null 2>&1; then
   exit 1
 fi
 
-mapfile -t scripts < <(grep -rlE '^#!.*\bbash' "${repo_root}" | grep -v "^${repo_root}/bin/" || true)
-mapfile -t bats_tests < <(find "${repo_root}/tests" -name '*.bats' -type f || true)
+scripts=()
+while IFS= read -r line; do
+  scripts+=("${line}")
+done < <(grep -rlE '^#!.*\bbash' "${repo_root}" | grep -v "^${repo_root}/bin/" || true)
+
+bats_tests=()
+while IFS= read -r line; do
+  bats_tests+=("${line}")
+done < <(find "${repo_root}/tests" -name '*.bats' -type f || true)
+
 scripts+=("${bats_tests[@]}")
 
 for script in "${scripts[@]}"; do
