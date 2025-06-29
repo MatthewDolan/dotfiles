@@ -11,7 +11,7 @@ if ! git -C "${script_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; the
   target="${HOME}/.dotfiles"
   echo "Cloning dotfiles repository to ${target}..."
   if [[ ! -d "${target}" ]]; then
-    git clone "${repo_url}" "${target}"
+    git clone --depth=1 "${repo_url}" "${target}"
   fi
   cd "${target}"
   exec ./install.sh "$@"
