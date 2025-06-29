@@ -13,6 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Activate Hermit
-        run: ./bin/hermit env --raw >> "$GITHUB_ENV"
+        uses: cashapp/activate-hermit@v1
       - name: Run tests
         run: ./ci/test.sh
