@@ -4,54 +4,58 @@ set -e
 echo "Setting up your Computer..."
 
 # create developer directory
-if ! [ -d "$HOME/Developer" ]; then
+if ! [[ -d "${HOME}/Developer" ]]; then
   echo "Creating a Developer folder..."
-  mkdir -p "$HOME/Developer"
+  mkdir -p "${HOME}/Developer"
 fi
 
 # install oh-my-zsh
-if ! [[ -d "$HOME/.oh-my-zsh" ]]; then
+if ! [[ -d "${HOME}/.oh-my-zsh" ]]; then
   echo "Installing oh-my-zsh..."
+  # shellcheck disable=SC2312
   sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
 fi
 
 # install hermit
 if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
-  if ! [[ -d "$HOME/bin/hermit" ]]; then
+  if ! [[ -d "${HOME}/bin/hermit" ]]; then
     echo "Installing hermit..."
+    # shellcheck disable=SC2312
     curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
   fi
 fi
 
 # symlink files from `./home` to `$HOME`
-home_src="$PWD/home"
-home_dst="$HOME"
+home_src="${PWD}/home"
+home_dst="${HOME}"
 
-echo "Symlinking files from $home_src to $home_dst..."
+echo "Symlinking files from ${home_src} to ${home_dst}..."
 
 # iterate through all files in $home_src and its subdirectories
-find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
+# shellcheck disable=SC2312
+find "${home_src}" -type f -print0 | while IFS= read -r -d '' file; do
   # create the destination directory for the symlink
-  dest_dir="$(dirname "${file#"$home_src/"}")"
+  dest_dir="$(dirname "${file#"${home_src}/"}")"
 
-  echo "  Symlinking ${file#"$home_src/"} to \$HOME/$dest_dir..."
+  echo "  Symlinking ${file#"${home_src}/"} to \$HOME/${dest_dir}..."
 
-  mkdir -p "$home_dst/$dest_dir"
+  mkdir -p "${home_dst}/${dest_dir}"
 
-  dest_file="$home_dst/$dest_dir/$(basename "$file")"
+  dest_file="${home_dst}/${dest_dir}/$(basename "${file}")"
 
   # create the symlink, moving the file to .old if necessary
-  if [[ -e "$dest_file" && ! -L "$dest_file" ]]; then
+  if [[ -e "${dest_file}" && ! -L "${dest_file}" ]]; then
 
     # create .old directory if it doesn't exist
-    mkdir -p "$home_dst/.old/$dest_dir"
+    mkdir -p "${home_dst}/.old/${dest_dir}"
 
-    mv "$dest_file" "$home_dst/.old/$dest_dir/$(basename "$file")"
+    mv "${dest_file}" "${home_dst}/.old/${dest_dir}/$(basename "${file}")"
   fi
-  ln -sf "$file" "$dest_file"
+  ln -sf "${file}" "${dest_file}"
 done
 
 # install mac os x specific programs
+# shellcheck disable=SC2312
 if [[ "$(uname)" == "Darwin" ]]; then
   echo "Installing Mac OS Software..."
 

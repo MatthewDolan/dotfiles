@@ -1,12 +1,12 @@
 #!/bin/bash
 
-while read -r hook; do
-    bash "$(dirname "$0")/pre-commit.d/$hook"
+for hook in "$(dirname "$0")"/pre-commit.d/*; do
+    bash "${hook}"
     RESULT=$?
-    if [ $RESULT != 0 ]; then
-        echo "pre-commit.d/$hook returned non-zero: $RESULT, abort commit"
-        exit $RESULT
+    if [[ "${RESULT}" != 0 ]]; then
+        echo "$(basename "${hook}") returned non-zero: ${RESULT}, abort commit"
+        exit "${RESULT}"
     fi
-done <<< "$(ls $(dirname "$0")/pre-commit.d)"
+done
 
 exit 0
