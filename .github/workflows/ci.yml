@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - uses: cashapp/activate-hermit@v1
       - name: Run tests
-        run: |
-          . ./bin/activate-hermit
-          ./ci/test.sh
+        run: ./ci/test.sh
