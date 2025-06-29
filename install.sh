@@ -27,7 +27,7 @@ fi
 home_src="$PWD/home"
 home_dst="$HOME"
 
-echo "Symlinking files from ${file#"$PWD/"} to $home_dst..."
+echo "Symlinking files from $home_src to $home_dst..."
 
 # iterate through all files in $home_src and its subdirectories
 find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
@@ -44,7 +44,7 @@ find "$home_src" -type f -print0 | while IFS= read -r -d '' file; do
   if [[ -e "$dest_file" && ! -L "$dest_file" ]]; then
 
     # create .old directory if it doesn't exist
-    mkdir -p "$home_dst/.old"
+    mkdir -p "$home_dst/.old/$dest_dir"
 
     mv "$dest_file" "$home_dst/.old/$dest_dir/$(basename "$file")"
   fi
