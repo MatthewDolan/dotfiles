@@ -1,6 +1,24 @@
 #!/bin/bash
 set -euo pipefail
 
+repo_url="https://github.com/MatthewDolan/dotfiles.git"
+
+# Determine where this script lives on disk
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# If the script isn't part of a git repository, clone and re-run from ~/.dotfiles
+if ! git -C "${script_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  target="${HOME}/.dotfiles"
+  echo "Cloning dotfiles repository to ${target}..."
+  if [[ ! -d "${target}" ]]; then
+    git clone "${repo_url}" "${target}"
+  fi
+  cd "${target}"
+  exec ./install.sh "$@"
+fi
+
+cd "${script_dir}"
+
 echo "Setting up your Computer..."
 
 # create developer directory
@@ -24,7 +42,7 @@ if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
 fi
 
 # symlink files from `./home` to `$HOME`
-home_src="${PWD}/home"
+home_src="${script_dir}/home"
 home_dst="${HOME}"
 
 echo "Symlinking files from ${home_src} to ${home_dst}..."
