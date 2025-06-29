@@ -4,7 +4,13 @@ repo_root="$(git rev-parse --show-toplevel)"
 
 check_script() {
   local file="$1"
-  bash -n "${file}"
+  local shebang
+  shebang="$(head -n1 "${file}")"
+  if [[ "${shebang}" == *zsh* ]] && command -v zsh >/dev/null 2>&1; then
+    zsh -n "${file}"
+  else
+    bash -n "${file}"
+  fi
   shellcheck -x -s bash --severity=style --enable=all "${file}"
 }
 
@@ -16,7 +22,7 @@ fi
 scripts=()
 while IFS= read -r line; do
   scripts+=("${line}")
-done < <(grep -rlE '^#!.*\bbash' "${repo_root}" | grep -v "^${repo_root}/bin/" || true)
+done < <(grep -rlE '^#!.*\b(bash|zsh)' "${repo_root}" | grep -v "^${repo_root}/bin/" || true)
 
 bats_tests=()
 while IFS= read -r line; do
