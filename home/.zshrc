@@ -1,12 +1,6 @@
 #!/usr/bin/env zsh
 # shellcheck disable=SC1091
 
-# Source ~/.zshrc.local (not checked into the repo)
-# This is where you would put local configuration that's only for this computer.
-# For example, sourcing company specific files or setting secret keys as
-# environment variables.
-if [[ -f "${HOME}/.zshrc.local" ]]; then source "${HOME}"/.zshrc.local; fi
-
 # Path to your oh-my-zsh installation.
 export ZSH=~/.oh-my-zsh
 export ZSH_DISABLE_COMPFIX=true
@@ -115,3 +109,8 @@ if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
   fi
 fi
 
+# Source ~/.zshrc.local (not checked into the repo)
+# This is where you would put local configuration that's only for this computer.
+# For example, sourcing company specific files or setting secret keys as
+# environment variables.
+if [[ -f "${HOME}/.zshrc.local" ]]; then source "${HOME}"/.zshrc.local; fi
