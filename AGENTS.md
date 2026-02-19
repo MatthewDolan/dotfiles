@@ -4,3 +4,4 @@
 - Source the Hermit environment first:
   `. ./bin/activate-hermit`
 - Ensure your working tree is clean before committing.
+- Use `#!/bin/zsh` as the shebang for all shell scripts (not `#!/bin/bash`).
