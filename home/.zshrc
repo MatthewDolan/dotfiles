@@ -11,20 +11,20 @@ if [[ ! -v ZSH_THEME ]]; then export ZSH_THEME="robbyrussell"; fi
 # zsh plugins
 plugins=(
   "${plugins[@]}"
-  brew
   dotenv
   git
   git-auto-fetch
-  github
-  golang
-  helm
   history
   history-substring-search
-  kubectl
-  terraform
   timer
-  nvm
 )
+
+# Load the brew plugin only on macOS when brew is available
+if [[ "${OSTYPE}" == darwin* ]]; then
+  if command -v brew >/dev/null 2>&1; then
+    plugins+=(brew)
+  fi
+fi
 
 # Load the docker plugin only if the docker command is available
 if command -v docker >/dev/null 2>&1; then
