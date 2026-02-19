@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/zsh
 set -euo pipefail
 
 # Resolve the dotfiles directory by following this script's symlink
-script_source="${BASH_SOURCE[0]}"
+script_source="${0}"
 if [[ -L "${script_source}" ]]; then
   script_source="$(readlink "${script_source}")"
 fi

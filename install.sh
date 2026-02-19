@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 set -euo pipefail
 
 repo_url="https://github.com/MatthewDolan/dotfiles.git"
