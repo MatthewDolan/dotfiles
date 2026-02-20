@@ -4,7 +4,7 @@ set -euo pipefail
 repo_url="https://github.com/MatthewDolan/dotfiles.git"
 
 # Determine where this script lives on disk
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "$0")" && pwd)"
 
 # If the script isn't part of a git repository, clone and re-run from ~/.dotfiles
 if ! git -C "${script_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
