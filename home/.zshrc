@@ -13,7 +13,6 @@ plugins=(
   "${plugins[@]}"
   dotenv
   git
-  git-auto-fetch
   history
   history-substring-search
   timer
