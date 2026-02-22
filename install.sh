@@ -74,3 +74,6 @@ if [[ "${os_name}" == "Darwin" ]]; then
   defaults write com.apple.finder AppleShowAllFiles TRUE
   killall Finder
 fi
+
+# Keep agents bootstrap logic in a dedicated script for readability.
+. "${script_dir}/install-agents.sh"

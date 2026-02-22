@@ -70,3 +70,6 @@
 
 [http]
   cookiefile = /Users/dolan/.gitcookies
+
+[include]
+  path = ~/.gitconfig.local
