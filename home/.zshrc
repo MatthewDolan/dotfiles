@@ -126,6 +126,26 @@ _dotfiles_check_for_upgrade() {
 }
 _dotfiles_check_for_upgrade
 
+# Check for agents upgrades (once every 24 hours)
+_agents_check_for_upgrade() {
+  local stamp_file="${HOME}/.agents-last-update-check"
+  local now
+  now="$(date +%s)"
+  local last_check=0
+
+  if [[ -f "${stamp_file}" ]]; then
+    last_check="$(cat "${stamp_file}")"
+  fi
+
+  if (( now - last_check >= 86400 )); then
+    echo "${now}" > "${stamp_file}"
+    if command -v agents-check-for-upgrade.sh >/dev/null 2>&1; then
+      agents-check-for-upgrade.sh
+    fi
+  fi
+}
+_agents_check_for_upgrade
+
 # Source ~/.zshrc.local (not checked into the repo)
 # This is where you would put local configuration that's only for this computer.
 # For example, sourcing company specific files or setting secret keys as

@@ -5,6 +5,7 @@ install_agents_configuration() {
   # Keep variables local so this helper can be safely sourced by install.sh.
   local agents_repo
   local agents_target
+  local current_sha
   local matching_remote
   local remote_name
   local remote_url
@@ -13,13 +14,6 @@ install_agents_configuration() {
   # Allow overriding the default agents repository for forks/tests.
   agents_repo="${DOLAN_AGENTS_REPO_SSH:-git@github.com:MatthewDolan/agents.git}"
   agents_target="${HOME}/.agents"
-
-  # If the current SSH identity cannot read the repo, skip gracefully.
-  echo "Checking SSH access to ${agents_repo}..."
-  if ! git ls-remote --exit-code "${agents_repo}" >/dev/null 2>&1; then
-    echo "No SSH access to ${agents_repo}; cannot install agent configuration."
-    return 0
-  fi
 
   # Reuse existing checkout when present, but only after validating identity.
   if [[ -e "${agents_target}" ]]; then
@@ -60,9 +54,17 @@ install_agents_configuration() {
       return 1
     fi
 
-    echo "Using existing agents repository at ${agents_target} (matched remote: ${matching_remote})..."
+    current_sha="$(git -C "${agents_target}" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+    echo "Using existing agents repository at ${agents_target} (matched remote: ${matching_remote}, sha: ${current_sha}; no fetch/pull)..."
   else
-    # No existing checkout, so clone the repo now that access is confirmed.
+    # No existing checkout. Confirm SSH access before cloning.
+    echo "Checking SSH access to ${agents_repo}..."
+    if ! git ls-remote --exit-code "${agents_repo}" >/dev/null 2>&1; then
+      echo "No SSH access to ${agents_repo}; cannot install agent configuration."
+      return 0
+    fi
+
+    # Clone after access has been confirmed.
     echo "Cloning agents repository to ${agents_target}..."
     git clone "${agents_repo}" "${agents_target}"
   fi

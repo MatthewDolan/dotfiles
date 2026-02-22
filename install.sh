@@ -76,4 +76,4 @@ if [[ "${os_name}" == "Darwin" ]]; then
 fi
 
 # Keep agents bootstrap logic in a dedicated script for readability.
-. "${script_dir}/install-agents.sh"
+. "${script_dir}/agents/install.sh"
