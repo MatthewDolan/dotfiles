@@ -146,6 +146,11 @@ _agents_check_for_upgrade() {
 }
 _agents_check_for_upgrade
 
+# Source 1Password plugins if available
+if [[ -f "${HOME}/.config/op/plugins.sh" ]]; then
+  source "${HOME}/.config/op/plugins.sh"
+fi
+
 # Source ~/.zshrc.local (not checked into the repo)
 # This is where you would put local configuration that's only for this computer.
 # For example, sourcing company specific files or setting secret keys as
