@@ -1,0 +1,406 @@
+#!/bin/zsh
+set -euo pipefail
+
+DOL_ASSUME_YES=false
+DOL_DOTFILES_DIR=""
+DOTFILES_UPDATES_AVAILABLE=false
+AGENTS_UPDATES_AVAILABLE=false
+DOL_SCRIPT_SOURCE="$0"
+
+print_usage() {
+  cat <<'USAGE'
+Usage:
+  dol install [--yes]
+  dol update [--yes]
+  dol check [--yes]
+  dol agents install [--yes]
+  dol agents update [--yes]
+  dol agents check [--yes]
+  dol help
+USAGE
+}
+
+resolve_script_dir() {
+  local script_source="${DOL_SCRIPT_SOURCE}"
+  local source_dir
+
+  if [[ "${script_source}" != */* ]]; then
+    script_source="$(command -v -- "${script_source}")"
+  fi
+
+  while [[ -L "${script_source}" ]]; do
+    source_dir="$(cd -P "$(dirname "${script_source}")" && pwd)"
+    script_source="$(readlink "${script_source}")"
+    if [[ "${script_source}" != /* ]]; then
+      script_source="${source_dir}/${script_source}"
+    fi
+  done
+
+  cd -P "$(dirname "${script_source}")" && pwd
+}
+
+resolve_dotfiles_dir() {
+  local script_dir
+  local candidate
+
+  script_dir="$(resolve_script_dir)"
+  candidate="$(cd "${script_dir}/../.." && pwd)"
+
+  if [[ -d "${candidate}/home" && -f "${candidate}/install.sh" ]]; then
+    echo "${candidate}"
+    return 0
+  fi
+
+  echo "Error: unable to locate dotfiles repository from ${script_dir}." >&2
+  return 1
+}
+
+ensure_dotfiles_repo() {
+  if ! git -C "${DOL_DOTFILES_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: ${DOL_DOTFILES_DIR} is not a git repository." >&2
+    return 1
+  fi
+}
+
+ensure_clean_dotfiles_repo() {
+  local repo_status
+
+  repo_status="$(git -C "${DOL_DOTFILES_DIR}" status --porcelain)"
+  if [[ -n "${repo_status}" ]]; then
+    cat >&2 <<'EOF'
+Refusing to update dotfiles because the working tree has local changes.
+Please commit, stash, or discard your changes and run `dol update` again.
+EOF
+    return 1
+  fi
+}
+
+confirm_action() {
+  local prompt="$1"
+  local response
+
+  if [[ "${DOL_ASSUME_YES}" == "true" ]]; then
+    return 0
+  fi
+
+  if [[ ! -t 0 || ! -t 1 ]]; then
+    return 1
+  fi
+
+  printf "%s [y/N] " "${prompt}"
+  if ! read -r response; then
+    return 1
+  fi
+
+  [[ "${response}" =~ ^[Yy]$ ]]
+}
+
+parse_common_flags() {
+  DOL_ASSUME_YES=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --yes|-y)
+        DOL_ASSUME_YES=true
+        ;;
+      -h|--help)
+        print_usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1" >&2
+        print_usage >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+run_dotfiles_install() {
+  local home_src
+  local home_dst
+  local os_name
+
+  ensure_dotfiles_repo
+
+  echo "Setting up your Computer..."
+
+  if [[ ! -d "${HOME}/Developer" ]]; then
+    echo "Creating a Developer folder..."
+    mkdir -p "${HOME}/Developer"
+  fi
+
+  if [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
+    echo "Installing oh-my-zsh..."
+    curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh -s -- --keep-zshrc
+  fi
+
+  if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
+    if [[ ! -d "${HOME}/bin/hermit" ]]; then
+      echo "Installing hermit..."
+      curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
+    fi
+  fi
+
+  home_src="${DOL_DOTFILES_DIR}/home"
+  home_dst="${HOME}"
+
+  echo "Symlinking files from ${home_src} to ${home_dst}..."
+
+  find "${home_src}" -type f -print0 | while IFS= read -r -d '' file; do
+    local dest_dir
+    local dest_file
+
+    dest_dir="$(dirname "${file#"${home_src}/"}")"
+    echo "  Symlinking ${file#"${home_src}/"} to \$HOME/${dest_dir}..."
+    mkdir -p "${home_dst}/${dest_dir}"
+    dest_file="${home_dst}/${dest_dir}/$(basename "${file}")"
+
+    if [[ -e "${dest_file}" && ! -L "${dest_file}" ]]; then
+      mkdir -p "${home_dst}/.old/${dest_dir}"
+      mv "${dest_file}" "${home_dst}/.old/${dest_dir}/$(basename "${file}")"
+    fi
+
+    ln -sf "${file}" "${dest_file}"
+  done
+
+  os_name="$(uname)"
+  if [[ "${os_name}" == "Darwin" ]]; then
+    echo "Installing Mac OS Software..."
+
+    if ! command -v brew >/dev/null 2>&1; then
+      echo "  Installing Homebrew..."
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | /bin/bash
+    fi
+
+    echo "  Showing hidden files in Finder..."
+    defaults write com.apple.finder AppleShowAllFiles TRUE
+    killall Finder
+  fi
+
+  . "${DOL_DOTFILES_DIR}/agents/install.sh"
+}
+
+run_agents_install() {
+  . "${DOL_DOTFILES_DIR}/agents/install.sh"
+}
+
+run_dotfiles_update() {
+  ensure_dotfiles_repo
+  ensure_clean_dotfiles_repo
+
+  echo "Upgrading dotfiles from ${DOL_DOTFILES_DIR}..."
+  git -C "${DOL_DOTFILES_DIR}" pull --ff-only
+  run_dotfiles_install
+  echo "Dotfiles upgraded successfully."
+}
+
+run_agents_update() {
+  local agents_dir="${HOME}/.agents"
+
+  if ! git -C "${agents_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: ${agents_dir} is not a git repository." >&2
+    return 1
+  fi
+
+  echo "Upgrading agents from ${agents_dir}..."
+  git -C "${agents_dir}" pull --ff-only
+  "${agents_dir}/install.sh"
+  echo "Agents upgraded successfully."
+}
+
+check_dotfiles_updates() {
+  local local_head
+  local remote_head
+
+  DOTFILES_UPDATES_AVAILABLE=false
+  ensure_dotfiles_repo
+
+  if ! git -C "${DOL_DOTFILES_DIR}" fetch --quiet 2>/dev/null; then
+    return 0
+  fi
+
+  local_head="$(git -C "${DOL_DOTFILES_DIR}" rev-parse HEAD)"
+  remote_head="$(git -C "${DOL_DOTFILES_DIR}" rev-parse "@{u}" 2>/dev/null)" || return 0
+
+  if [[ "${local_head}" == "${remote_head}" ]]; then
+    return 0
+  fi
+
+  DOTFILES_UPDATES_AVAILABLE=true
+  echo "Dotfiles updates available:"
+  git -C "${DOL_DOTFILES_DIR}" log --oneline HEAD.."@{u}"
+  echo ""
+}
+
+check_agents_updates() {
+  local agents_dir="${HOME}/.agents"
+  local local_head
+  local remote_head
+
+  AGENTS_UPDATES_AVAILABLE=false
+
+  if [[ ! -d "${agents_dir}" ]]; then
+    return 0
+  fi
+
+  if ! git -C "${agents_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: ${agents_dir} is not a git repository." >&2
+    return 1
+  fi
+
+  if ! git -C "${agents_dir}" fetch --quiet 2>/dev/null; then
+    return 0
+  fi
+
+  local_head="$(git -C "${agents_dir}" rev-parse HEAD)"
+  remote_head="$(git -C "${agents_dir}" rev-parse "@{u}" 2>/dev/null)" || return 0
+
+  if [[ "${local_head}" == "${remote_head}" ]]; then
+    return 0
+  fi
+
+  AGENTS_UPDATES_AVAILABLE=true
+  echo "Agents updates available:"
+  git -C "${agents_dir}" log --oneline HEAD.."@{u}"
+  echo ""
+}
+
+apply_available_updates() {
+  if [[ "${DOTFILES_UPDATES_AVAILABLE}" == "true" ]]; then
+    run_dotfiles_update
+  fi
+
+  if [[ "${AGENTS_UPDATES_AVAILABLE}" == "true" ]]; then
+    run_agents_update
+  fi
+}
+
+command_install() {
+  run_dotfiles_install
+}
+
+command_update() {
+  run_dotfiles_update
+}
+
+command_check() {
+  local confirm_status=1
+
+  check_dotfiles_updates
+  check_agents_updates
+
+  if [[ "${DOTFILES_UPDATES_AVAILABLE}" != "true" && "${AGENTS_UPDATES_AVAILABLE}" != "true" ]]; then
+    return 0
+  fi
+
+  if [[ "${DOL_ASSUME_YES}" == "true" ]]; then
+    apply_available_updates
+    return 0
+  fi
+
+  set +e
+  confirm_action "Upgrade available updates now?"
+  confirm_status=$?
+  set -e
+  if [[ "${confirm_status}" -eq 0 ]]; then
+    apply_available_updates
+  fi
+}
+
+command_agents_install() {
+  run_agents_install
+}
+
+command_agents_update() {
+  run_agents_update
+}
+
+command_agents_check() {
+  local confirm_status=1
+
+  check_agents_updates
+
+  if [[ "${AGENTS_UPDATES_AVAILABLE}" != "true" ]]; then
+    return 0
+  fi
+
+  if [[ "${DOL_ASSUME_YES}" == "true" ]]; then
+    run_agents_update
+    return 0
+  fi
+
+  set +e
+  confirm_action "Upgrade agents now?"
+  confirm_status=$?
+  set -e
+  if [[ "${confirm_status}" -eq 0 ]]; then
+    run_agents_update
+  fi
+}
+
+main() {
+  local command
+  local subcommand
+
+  DOL_DOTFILES_DIR="$(resolve_dotfiles_dir)"
+  command="${1:-help}"
+  if [[ $# -gt 0 ]]; then
+    shift
+  fi
+
+  case "${command}" in
+    help|-h|--help)
+      print_usage
+      ;;
+    install)
+      parse_common_flags "$@"
+      command_install
+      ;;
+    update)
+      parse_common_flags "$@"
+      command_update
+      ;;
+    check)
+      parse_common_flags "$@"
+      command_check
+      ;;
+    agents)
+      subcommand="${1:-help}"
+      if [[ $# -gt 0 ]]; then
+        shift
+      fi
+
+      case "${subcommand}" in
+        install)
+          parse_common_flags "$@"
+          command_agents_install
+          ;;
+        update)
+          parse_common_flags "$@"
+          command_agents_update
+          ;;
+        check)
+          parse_common_flags "$@"
+          command_agents_check
+          ;;
+        help|-h|--help)
+          print_usage
+          ;;
+        *)
+          echo "Unknown agents subcommand: ${subcommand}" >&2
+          print_usage >&2
+          return 1
+          ;;
+      esac
+      ;;
+    *)
+      echo "Unknown command: ${command}" >&2
+      print_usage >&2
+      return 1
+      ;;
+  esac
+}
+
+main "$@"

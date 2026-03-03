@@ -108,43 +108,33 @@ if [[ "${DOLAN_USE_HERMIT:-false}" == "true" ]]; then
   fi
 fi
 
-# Check for dotfiles upgrades (once every 24 hours)
-_dotfiles_check_for_upgrade() {
-  local stamp_file="${HOME}/.dotfiles-last-update-check"
+# Check for dotfiles/agents upgrades (once every 24 hours).
+_dol_check_for_upgrade() {
+  local stamp_file="${HOME}/.dol-last-update-check"
   local now
-  now="$(date +%s)"
   local last_check=0
 
+  now="$(date +%s)"
   if [[ -f "${stamp_file}" ]]; then
     last_check="$(cat "${stamp_file}")"
   fi
 
   if (( now - last_check >= 86400 )); then
     echo "${now}" > "${stamp_file}"
+
+    if command -v dol >/dev/null 2>&1; then
+      dol check
+      return 0
+    fi
+
+    # Backward-compatible fallback before dol is symlinked into PATH.
     dotfiles-check-for-upgrade.sh
-  fi
-}
-_dotfiles_check_for_upgrade
-
-# Check for agents upgrades (once every 24 hours)
-_agents_check_for_upgrade() {
-  local stamp_file="${HOME}/.agents-last-update-check"
-  local now
-  now="$(date +%s)"
-  local last_check=0
-
-  if [[ -f "${stamp_file}" ]]; then
-    last_check="$(cat "${stamp_file}")"
-  fi
-
-  if (( now - last_check >= 86400 )); then
-    echo "${now}" > "${stamp_file}"
     if command -v agents-check-for-upgrade.sh >/dev/null 2>&1; then
       agents-check-for-upgrade.sh
     fi
   fi
 }
-_agents_check_for_upgrade
+_dol_check_for_upgrade
 
 # Source 1Password plugins if available
 if [[ -f "${HOME}/.config/op/plugins.sh" ]]; then
