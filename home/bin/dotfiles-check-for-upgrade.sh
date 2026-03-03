@@ -1,39 +1,28 @@
 #!/bin/zsh
 set -euo pipefail
 
-# Resolve the dotfiles directory by following this script's symlink
-script_source="${0}"
-if [[ -L "${script_source}" ]]; then
-  script_source="$(readlink "${script_source}")"
-fi
-dotfiles_dir="$(cd "$(dirname "${script_source}")/../.." && pwd)"
+WRAPPER_SCRIPT_SOURCE="$0"
 
-# Verify it's a git repository
-if ! git -C "${dotfiles_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "Error: ${dotfiles_dir} is not a git repository." >&2
-  exit 1
-fi
+resolve_wrapper_dotfiles_dir() {
+  local script_source="${WRAPPER_SCRIPT_SOURCE}"
+  local source_dir
 
-# Fetch latest from remote; exit silently on network failure
-if ! git -C "${dotfiles_dir}" fetch --quiet 2>/dev/null; then
-  exit 0
-fi
+  if [[ "${script_source}" != */* ]]; then
+    script_source="$(command -v -- "${script_source}")"
+  fi
 
-# Compare local HEAD to upstream
-local_head="$(git -C "${dotfiles_dir}" rev-parse HEAD)"
-remote_head="$(git -C "${dotfiles_dir}" rev-parse "@{u}" 2>/dev/null)" || exit 0
+  while [[ -L "${script_source}" ]]; do
+    source_dir="$(cd -P "$(dirname "${script_source}")" && pwd)"
+    script_source="$(readlink "${script_source}")"
+    if [[ "${script_source}" != /* ]]; then
+      script_source="${source_dir}/${script_source}"
+    fi
+  done
 
-if [[ "${local_head}" == "${remote_head}" ]]; then
-  exit 0
-fi
+  cd -P "$(dirname "${script_source}")/../.." && pwd
+}
 
-# Show what's new
-echo "Dotfiles updates available:"
-git -C "${dotfiles_dir}" log --oneline HEAD.."@{u}"
-echo ""
+dotfiles_dir="$(resolve_wrapper_dotfiles_dir)"
 
-# Prompt for upgrade
-read -r -p "Upgrade dotfiles? [y/N] " response
-if [[ "${response}" =~ ^[Yy]$ ]]; then
-  dotfiles-upgrade.sh
-fi
+echo "dotfiles-check-for-upgrade.sh is deprecated; forwarding to 'dol check'."
+exec "${dotfiles_dir}/home/bin/dol" check "$@"

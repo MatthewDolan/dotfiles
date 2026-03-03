@@ -1,20 +1,28 @@
 #!/bin/zsh
 set -euo pipefail
 
-# Resolve the dotfiles directory by following this script's symlink
-script_source="${0}"
-if [[ -L "${script_source}" ]]; then
-  script_source="$(readlink "${script_source}")"
-fi
-dotfiles_dir="$(cd "$(dirname "${script_source}")/../.." && pwd)"
+WRAPPER_SCRIPT_SOURCE="$0"
 
-# Verify it's a git repository
-if ! git -C "${dotfiles_dir}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "Error: ${dotfiles_dir} is not a git repository." >&2
-  exit 1
-fi
+resolve_wrapper_dotfiles_dir() {
+  local script_source="${WRAPPER_SCRIPT_SOURCE}"
+  local source_dir
 
-echo "Upgrading dotfiles from ${dotfiles_dir}..."
-git -C "${dotfiles_dir}" pull --ff-only
-"${dotfiles_dir}/install.sh"
-echo "Dotfiles upgraded successfully."
+  if [[ "${script_source}" != */* ]]; then
+    script_source="$(command -v -- "${script_source}")"
+  fi
+
+  while [[ -L "${script_source}" ]]; do
+    source_dir="$(cd -P "$(dirname "${script_source}")" && pwd)"
+    script_source="$(readlink "${script_source}")"
+    if [[ "${script_source}" != /* ]]; then
+      script_source="${source_dir}/${script_source}"
+    fi
+  done
+
+  cd -P "$(dirname "${script_source}")/../.." && pwd
+}
+
+dotfiles_dir="$(resolve_wrapper_dotfiles_dir)"
+
+echo "dotfiles-upgrade.sh is deprecated; forwarding to 'dol update'."
+exec "${dotfiles_dir}/home/bin/dol" update "$@"

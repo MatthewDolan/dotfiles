@@ -24,6 +24,20 @@ curl -fsSL https://matthewdolan.github.io/dotfiles/install.sh | bash
 
 When executed via `curl` or from outside the repository, the installer clones this repository to `~/.dotfiles` before continuing.
 
+## `dol` command
+
+After installation, use `dol` to manage dotfiles and agents updates:
+
+```bash
+dol install
+dol check
+dol update
+dol agents check
+dol agents update
+```
+
+Legacy commands (`install.sh`, `dotfiles-upgrade.sh`, `dotfiles-check-for-upgrade.sh`, `agents-upgrade.sh`, and `agents-check-for-upgrade.sh`) are still available as compatibility wrappers and forward to `dol`.
+
 ## Testing
 
 Activate the included [Hermit](https://github.com/cashapp/hermit) environment and run the tests with:
