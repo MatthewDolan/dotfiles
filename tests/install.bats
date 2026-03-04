@@ -35,7 +35,15 @@ teardown() {
 }
 
 run_install() {
-  env "${install_env[@]}" zsh "${repo_root}/install.sh"
+  local shell_bin
+
+  if command -v zsh >/dev/null 2>&1; then
+    shell_bin="$(command -v zsh)"
+  else
+    shell_bin="$(command -v bash)"
+  fi
+
+  env "${install_env[@]}" "${shell_bin}" "${repo_root}/install.sh"
 }
 
 @test "fresh install prepends managed include blocks" {
