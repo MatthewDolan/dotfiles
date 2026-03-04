@@ -8,15 +8,15 @@ setup() {
   mkdir -p "${fake_bin}" "${tmp_home}/.oh-my-zsh"
 
   cat > "${fake_bin}/uname" <<'EOF'
-#!/bin/zsh
+#!/bin/sh
 echo "Linux"
 EOF
   chmod +x "${fake_bin}/uname"
 
   real_git="$(command -v git)"
   cat > "${fake_bin}/git" <<EOF
-#!/bin/zsh
-if [[ "\$1" == "ls-remote" ]]; then
+#!/bin/sh
+if [ "\$1" = "ls-remote" ]; then
   exit 1
 fi
 exec "${real_git}" "\$@"
@@ -30,9 +30,16 @@ EOF
   )
 
   if command -v zsh >/dev/null 2>&1; then
-    install_shell="$(command -v zsh)"
+    install_command=(
+      "$(command -v zsh)"
+      "${repo_root}/install.sh"
+    )
   else
-    install_shell="$(command -v bash)"
+    install_command=(
+      "$(command -v bash)"
+      "${repo_root}/home/bin/dol"
+      install
+    )
   fi
 }
 
@@ -41,7 +48,7 @@ teardown() {
 }
 
 @test "fresh install prepends managed include blocks" {
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
   [ -L "${tmp_home}/.zshrc.dolan" ]
@@ -80,7 +87,7 @@ teardown() {
 export KEEP_THIS_LINE=1
 EOF
 
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
   run tail -n 1 "${tmp_home}/.zshrc"
@@ -97,7 +104,7 @@ EOF
 export STILL_HERE=1
 EOF
 
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
   run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshrc"
@@ -117,7 +124,7 @@ EOF
   ln -s "${repo_root}/home/.zshenv.dolan" "${tmp_home}/.zshenv"
   ln -s "${repo_root}/home/.gitconfig.dolan" "${tmp_home}/.gitconfig"
 
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
   [ -f "${tmp_home}/.zshrc" ]
@@ -129,10 +136,10 @@ EOF
 }
 
 @test "re-running install does not duplicate managed blocks" {
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
-  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
+  run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
   run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshrc"
