@@ -117,6 +117,83 @@ parse_common_flags() {
   done
 }
 
+managed_block_start="# >>> ~/.dotfiles/install.sh >>>"
+managed_block_end="# <<< ~/.dotfiles/install.sh <<<"
+
+ensure_local_dotfile() {
+  local target="$1"
+
+  if [[ -d "${target}" ]]; then
+    echo "Cannot manage ${target}: it is a directory."
+    return 1
+  fi
+
+  # Older installs symlinked these files directly; replace with a fresh local file.
+  if [[ -L "${target}" ]]; then
+    echo "  Replacing symlinked $(basename "${target}") with a local file..."
+    rm -f "${target}"
+    : > "${target}"
+    return 0
+  fi
+
+  if [[ ! -e "${target}" ]]; then
+    : > "${target}"
+  fi
+}
+
+strip_managed_block() {
+  local source_file="$1"
+  local destination_file="$2"
+
+  awk -v start="${managed_block_start}" -v end="${managed_block_end}" '
+    $0 == start {
+      in_block=1
+      next
+    }
+    in_block && $0 == end {
+      in_block=0
+      next
+    }
+    !in_block {
+      print
+    }
+  ' "${source_file}" > "${destination_file}"
+}
+
+prepend_managed_block() {
+  local target="$1"
+  shift
+  local block_lines=("$@")
+  local stripped_file
+  local line
+
+  ensure_local_dotfile "${target}"
+
+  stripped_file="$(mktemp "${TMPDIR:-/tmp}/dotfiles-install.XXXXXX")"
+  strip_managed_block "${target}" "${stripped_file}"
+
+  {
+    printf '%s\n' "${managed_block_start}"
+    for line in "${block_lines[@]}"; do
+      printf '%s\n' "${line}"
+    done
+    printf '%s\n' "${managed_block_end}"
+    if [[ -s "${stripped_file}" ]]; then
+      printf '\n'
+      cat "${stripped_file}"
+    fi
+  } > "${target}"
+
+  rm -f "${stripped_file}"
+}
+
+configure_managed_dotfiles() {
+  echo "Configuring managed include blocks..."
+  prepend_managed_block "${HOME}/.zshrc" "[ -f \"\$HOME/.zshrc.dolan\" ] && . \"\$HOME/.zshrc.dolan\""
+  prepend_managed_block "${HOME}/.zshenv" "[ -f \"\$HOME/.zshenv.dolan\" ] && . \"\$HOME/.zshenv.dolan\""
+  prepend_managed_block "${HOME}/.gitconfig" '[include]' '  path = ~/.gitconfig.dolan'
+}
+
 run_dotfiles_install() {
   local home_src
   local home_dst
@@ -164,6 +241,8 @@ run_dotfiles_install() {
 
     ln -sf "${file}" "${dest_file}"
   done
+
+  configure_managed_dotfiles
 
   os_name="$(uname)"
   if [[ "${os_name}" == "Darwin" ]]; then
