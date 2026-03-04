@@ -28,26 +28,20 @@ EOF
     "PATH=${fake_bin}:${PATH}"
     "DOLAN_USE_HERMIT=false"
   )
+
+  if command -v zsh >/dev/null 2>&1; then
+    install_shell="$(command -v zsh)"
+  else
+    install_shell="$(command -v bash)"
+  fi
 }
 
 teardown() {
   rm -rf "${tmp_home}"
 }
 
-run_install() {
-  local shell_bin
-
-  if command -v zsh >/dev/null 2>&1; then
-    shell_bin="$(command -v zsh)"
-  else
-    shell_bin="$(command -v bash)"
-  fi
-
-  env "${install_env[@]}" "${shell_bin}" "${repo_root}/install.sh"
-}
-
 @test "fresh install prepends managed include blocks" {
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
   [ -L "${tmp_home}/.zshrc.dolan" ]
@@ -86,7 +80,7 @@ run_install() {
 export KEEP_THIS_LINE=1
 EOF
 
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
   run tail -n 1 "${tmp_home}/.zshrc"
@@ -103,7 +97,7 @@ EOF
 export STILL_HERE=1
 EOF
 
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
   run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshrc"
@@ -123,7 +117,7 @@ EOF
   ln -s "${repo_root}/home/.zshenv.dolan" "${tmp_home}/.zshenv"
   ln -s "${repo_root}/home/.gitconfig.dolan" "${tmp_home}/.gitconfig"
 
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
   [ -f "${tmp_home}/.zshrc" ]
@@ -135,10 +129,10 @@ EOF
 }
 
 @test "re-running install does not duplicate managed blocks" {
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
-  run run_install
+  run env "${install_env[@]}" "${install_shell}" "${repo_root}/install.sh"
   [ "${status}" -eq 0 ]
 
   run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshrc"
