@@ -53,12 +53,15 @@ teardown() {
 
   [ -L "${tmp_home}/.zshrc.dolan" ]
   [ -L "${tmp_home}/.zshenv.dolan" ]
+  [ -L "${tmp_home}/.zprofile.dolan" ]
   [ -L "${tmp_home}/.gitconfig.dolan" ]
 
   [ -f "${tmp_home}/.zshrc" ]
   [ ! -L "${tmp_home}/.zshrc" ]
   [ -f "${tmp_home}/.zshenv" ]
   [ ! -L "${tmp_home}/.zshenv" ]
+  [ -f "${tmp_home}/.zprofile" ]
+  [ ! -L "${tmp_home}/.zprofile" ]
   [ -f "${tmp_home}/.gitconfig" ]
   [ ! -L "${tmp_home}/.gitconfig" ]
 
@@ -74,6 +77,12 @@ teardown() {
   [ "${lines[1]}" = "[ -f \"\$HOME/.zshenv.dolan\" ] && . \"\$HOME/.zshenv.dolan\"" ]
   [ "${lines[2]}" = "# <<< ~/.dotfiles/install.sh <<<" ]
 
+  run sed -n '1,3p' "${tmp_home}/.zprofile"
+  [ "${status}" -eq 0 ]
+  [ "${lines[0]}" = "# >>> ~/.dotfiles/install.sh >>>" ]
+  [ "${lines[1]}" = "[ -f \"\$HOME/.zprofile.dolan\" ] && . \"\$HOME/.zprofile.dolan\"" ]
+  [ "${lines[2]}" = "# <<< ~/.dotfiles/install.sh <<<" ]
+
   run sed -n '1,4p' "${tmp_home}/.gitconfig"
   [ "${status}" -eq 0 ]
   [ "${lines[0]}" = "# >>> ~/.dotfiles/install.sh >>>" ]
@@ -83,22 +92,22 @@ teardown() {
 }
 
 @test "existing file contents are preserved under prepended block" {
-  cat > "${tmp_home}/.zshrc" <<'EOF'
+  cat > "${tmp_home}/.zprofile" <<'EOF'
 export KEEP_THIS_LINE=1
 EOF
 
   run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
-  run tail -n 1 "${tmp_home}/.zshrc"
+  run tail -n 1 "${tmp_home}/.zprofile"
   [ "${status}" -eq 0 ]
   [ "${output}" = "export KEEP_THIS_LINE=1" ]
 }
 
 @test "stale managed blocks are replaced with current include content" {
-  cat > "${tmp_home}/.zshrc" <<'EOF'
+  cat > "${tmp_home}/.zprofile" <<'EOF'
 # >>> ~/.dotfiles/install.sh >>>
-[ -f "$HOME/.old-zshrc" ] && . "$HOME/.old-zshrc"
+[ -f "$HOME/.old-zprofile" ] && . "$HOME/.old-zprofile"
 # <<< ~/.dotfiles/install.sh <<<
 
 export STILL_HERE=1
@@ -107,21 +116,22 @@ EOF
   run env "${install_env[@]}" "${install_command[@]}"
   [ "${status}" -eq 0 ]
 
-  run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshrc"
+  run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zprofile"
   [ "${status}" -eq 0 ]
   [ "${output}" -eq 1 ]
 
-  run grep -c 'old-zshrc' "${tmp_home}/.zshrc"
+  run grep -c 'old-zprofile' "${tmp_home}/.zprofile"
   [ "${status}" -eq 1 ]
 
-  run sed -n '1,3p' "${tmp_home}/.zshrc"
+  run sed -n '1,3p' "${tmp_home}/.zprofile"
   [ "${status}" -eq 0 ]
-  [ "${lines[1]}" = "[ -f \"\$HOME/.zshrc.dolan\" ] && . \"\$HOME/.zshrc.dolan\"" ]
+  [ "${lines[1]}" = "[ -f \"\$HOME/.zprofile.dolan\" ] && . \"\$HOME/.zprofile.dolan\"" ]
 }
 
 @test "existing symlinked dotfiles are unlinked and replaced with local files" {
   ln -s "${repo_root}/home/.zshrc.dolan" "${tmp_home}/.zshrc"
   ln -s "${repo_root}/home/.zshenv.dolan" "${tmp_home}/.zshenv"
+  ln -s "${repo_root}/home/.zprofile.dolan" "${tmp_home}/.zprofile"
   ln -s "${repo_root}/home/.gitconfig.dolan" "${tmp_home}/.gitconfig"
 
   run env "${install_env[@]}" "${install_command[@]}"
@@ -131,6 +141,8 @@ EOF
   [ ! -L "${tmp_home}/.zshrc" ]
   [ -f "${tmp_home}/.zshenv" ]
   [ ! -L "${tmp_home}/.zshenv" ]
+  [ -f "${tmp_home}/.zprofile" ]
+  [ ! -L "${tmp_home}/.zprofile" ]
   [ -f "${tmp_home}/.gitconfig" ]
   [ ! -L "${tmp_home}/.gitconfig" ]
 }
@@ -147,6 +159,10 @@ EOF
   [ "${output}" -eq 1 ]
 
   run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zshenv"
+  [ "${status}" -eq 0 ]
+  [ "${output}" -eq 1 ]
+
+  run grep -c '^# >>> ~/.dotfiles/install.sh >>>$' "${tmp_home}/.zprofile"
   [ "${status}" -eq 0 ]
   [ "${output}" -eq 1 ]
 

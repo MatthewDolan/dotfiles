@@ -189,8 +189,9 @@ prepend_managed_block() {
 
 configure_managed_dotfiles() {
   echo "Configuring managed include blocks..."
-  prepend_managed_block "${HOME}/.zshrc" "[ -f \"\$HOME/.zshrc.dolan\" ] && . \"\$HOME/.zshrc.dolan\""
   prepend_managed_block "${HOME}/.zshenv" "[ -f \"\$HOME/.zshenv.dolan\" ] && . \"\$HOME/.zshenv.dolan\""
+  prepend_managed_block "${HOME}/.zprofile" "[ -f \"\$HOME/.zprofile.dolan\" ] && . \"\$HOME/.zprofile.dolan\""
+  prepend_managed_block "${HOME}/.zshrc" "[ -f \"\$HOME/.zshrc.dolan\" ] && . \"\$HOME/.zshrc.dolan\""
   prepend_managed_block "${HOME}/.gitconfig" '[include]' '  path = ~/.gitconfig.dolan'
 }
 

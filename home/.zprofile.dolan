@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+# Add Homebrew shell environment for login shells.
+if [[ -f "/opt/homebrew/bin/brew" ]]; then
+  brew_env="$(/opt/homebrew/bin/brew shellenv)"
+  eval "${brew_env}"
+fi

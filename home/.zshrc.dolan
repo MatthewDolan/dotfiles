@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/zsh
 # shellcheck disable=SC1091
 
 # Path to your oh-my-zsh installation.
@@ -36,12 +36,6 @@ source "${ZSH}"/oh-my-zsh.sh
 
 # Used by some programs (including hermit)
 export PATH="${HOME}/bin:${PATH}"
-
-# Add homebrew shell environment
-if [[ -f '/opt/homebrew/bin/brew' ]]; then
-  brew_env="$(/opt/homebrew/bin/brew shellenv)"
-  eval "${brew_env}"
-fi
 
 # Set vscode as default editor if Code is available anywhere on PATH
 if command -v code >/dev/null 2>&1; then
