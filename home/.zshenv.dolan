@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/zsh
 # shellcheck disable=SC1091
 
 # Source ~/.zshenv.local (not checked into the repo)
@@ -6,6 +6,15 @@
 # For example, sourcing company specific files or setting secret keys as
 # environment variables.
 if [[ -f "${HOME}/.zshenv.local" ]]; then source "${HOME}"/.zshenv.local; fi
+
+# Make Homebrew tools available in all shells (login, interactive, non-login).
+typeset -U path PATH
+if [[ -d /opt/homebrew/bin ]]; then
+  path=(/opt/homebrew/bin /opt/homebrew/sbin "${path[@]}")
+elif [[ -d /usr/local/bin ]]; then
+  path=(/usr/local/bin /usr/local/sbin "${path[@]}")
+fi
+export PATH
 
 # Allow unlimited files to be opened at the same time.
 ulimit -u unlimited
